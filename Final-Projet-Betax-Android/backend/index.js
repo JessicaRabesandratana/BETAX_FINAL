@@ -289,7 +289,7 @@ app.post('/chat', async (req, res) => {
     // pour éviter une requête trop volumineuse.
     const contexteBus = JSON.stringify(
       resultats
-    ).slice(0, 120000);
+    ).slice(0, 20000);
 
     // ===============================
     // PROMPT DE L'IA
