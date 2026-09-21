@@ -9,8 +9,8 @@ app.use(cors());
 app.use(express.json());
 
 const GROQ_KEY = process.env.GROQ_API_KEY || process.env.groq_api_key;
-// Utilisation de Gemma 2 (Google), modèle universellement accessible sur Groq sans restrictions de droits
-const DEFAULT_MODEL = 'gemma2-9b-it';
+// Utilisation de llama (Google), modèle universellement accessible sur Groq sans restrictions de droits
+const DEFAULT_MODEL = 'llama-3.1-8b-instant';
 
 app.get('/health', (req, res) => {
   res.json({
