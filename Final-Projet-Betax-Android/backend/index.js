@@ -8,7 +8,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Force la lecture depuis les variables d'environnement système (Render) ou locale (.env)
 const GROQ_KEY = process.env.GROQ_API_KEY || process.env.groq_api_key;
 const DEFAULT_MODEL = 'llama-3.3-70b-versatile';
 
@@ -24,27 +23,31 @@ app.get('/health', (req, res) => {
 app.post('/chat', async (req, res) => {
   try {
     if (!GROQ_KEY) {
-      return res.status(500).json({ error: 'GROQ_API_KEY is missing. Set it in Render Dashboard Environment.' });
+      return res.status(500).json({ ok: false, reply: 'Erreur: GROQ_API_KEY manquante sur Render.' });
     }
 
     const body = req.body || {};
-    const incomingMessages = body.messages ?? (typeof body.message === 'string' ? [{ role: 'user', content: body.message }] : null);
-    const model = body.model || DEFAULT_MODEL;
-    const maxTokens = Number(body.max_tokens) || 500;
+    let incomingMessages = body.messages;
+
+    if (!incomingMessages && typeof body.message === 'string') {
+      incomingMessages = [{ role: 'user', content: body.message }];
+    }
 
     if (!incomingMessages || !Array.isArray(incomingMessages)) {
-      return res.status(400).json({ error: 'messages array required' });
+      return res.status(400).json({ ok: false, reply: 'Erreur: tableau de messages invalide.' });
     }
 
     const messages = incomingMessages.map((msg) => {
-      return { role: msg.role || 'user', content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content ?? '') };
+      let role = String(msg.role || 'user').toLowerCase();
+      if (role !== 'system' && role !== 'assistant') role = 'user';
+      return { role, content: String(msg.content || '') };
     });
 
     const payload = {
-      model: DEFAULT_MODEL, // Toujours forcer un modèle Groq officiel et valide
-      messages,
-      max_tokens: maxTokens,
-      temperature: Number(body.temperature) || 0.5
+      model: DEFAULT_MODEL,
+      messages: messages,
+      max_tokens: 500,
+      temperature: 0.5
     };
 
     const response = await fetchFn('https://api.groq.com/openai/v1/chat/completions', {
@@ -60,21 +63,21 @@ app.post('/chat', async (req, res) => {
 
     if (!response.ok) {
       return res.status(response.status).json({
-        error: data?.error?.message || 'Groq API request failed',
-        details: data
+        ok: false,
+        reply: `Erreur Groq (${response.status}): ${data?.error?.message || 'Requete refusee'}`
       });
     }
 
+    const replyText = data?.choices?.[0]?.message?.content || '';
+
     return res.json({
       ok: true,
-      reply: data?.choices?.[0]?.message?.content || '',
-      model
+      reply: replyText || "L'IA a renvoyé un texte vide."
     });
   } catch (err) {
-    console.error('Groq proxy error:', err);
-    return res.status(500).json({ error: err.message || 'Internal server error' });
+    return res.status(500).json({ ok: false, reply: 'Erreur proxy: ' + err.message });
   }
 });
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Betax chat proxy listening on ${port}`));
+app.listen(port, () => console.log(`Proxy listening on ${port}`));

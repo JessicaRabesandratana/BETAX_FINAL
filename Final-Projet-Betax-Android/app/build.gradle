@@ -19,13 +19,13 @@ android {
     buildTypes {
         debug {
             // REMPLACEZ L'URL CI-DESSOUS PAR VOTRE URL RENDER
-            buildConfigField "String", "BACKEND_URL", '"https://VOTRE_LIEN_ICI.onrender.com"'
+            buildConfigField "String", "BACKEND_URL", '"https://betax-final.onrender.com"'
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             // REMPLACEZ L'URL CI-DESSOUS PAR VOTRE URL RENDER
-            buildConfigField "String", "BACKEND_URL", '"https://VOTRE_LIEN_ICI.onrender.com"'
+            buildConfigField "String", "BACKEND_URL", '"https://betax-final.onrender.com"'
         }
     }
 
