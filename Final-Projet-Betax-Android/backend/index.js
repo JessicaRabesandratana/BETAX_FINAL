@@ -9,8 +9,8 @@ app.use(cors());
 app.use(express.json());
 
 const GROQ_KEY = process.env.GROQ_API_KEY || process.env.groq_api_key;
-// Le modèle actuellement supporté et actif à 100% sur TOUS les comptes Groq gratuits
-const DEFAULT_MODEL = 'llama-3.3-70b-versatile';
+// Utilisation de Gemma 2 (Google), modèle universellement accessible sur Groq sans restrictions de droits
+const DEFAULT_MODEL = 'gemma2-9b-it';
 
 app.get('/health', (req, res) => {
   res.json({
@@ -45,7 +45,7 @@ app.post('/chat', async (req, res) => {
     });
 
     const payload = {
-      model: DEFAULT_MODEL, // Utilisation du modèle de production officiel en cours chez Groq
+      model: DEFAULT_MODEL,
       messages: messages,
       max_tokens: 500,
       temperature: 0.5
