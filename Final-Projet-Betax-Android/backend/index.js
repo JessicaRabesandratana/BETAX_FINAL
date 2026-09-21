@@ -1,4 +1,3 @@
-
 require('dotenv').config();
 
 const express = require('express');
@@ -130,6 +129,41 @@ function transformerEnTableau(data) {
 }
 
 // ===============================
+// ALLEGEMENT DES OBJETS
+// (pour rester sous la limite de tokens Groq)
+// ===============================
+
+function allegerBus(bus) {
+  if (!bus || typeof bus !== 'object') {
+    return bus;
+  }
+
+  const stops = Array.isArray(bus.stops) ? bus.stops : [];
+
+  return {
+    name: bus.name,
+    // on ne garde que le debut et la fin du trajet
+    // (evite d'envoyer des lignes a 50+ arrets a l'IA)
+    stops:
+      stops.length > 20
+        ? [...stops.slice(0, 15), '...', ...stops.slice(-5)]
+        : stops
+  };
+}
+
+function allegerStop(stop) {
+  if (!stop || typeof stop !== 'object') {
+    return stop;
+  }
+
+  return {
+    name: stop.name,
+    place: stop.place,
+    routes: stop.routes
+  };
+}
+
+// ===============================
 // RECHERCHE DANS LES 3 JSON
 // ===============================
 
@@ -140,7 +174,7 @@ function rechercherDansDonnees(question) {
     .split(/[^a-z0-9]+/)
     .filter((mot) => mot.length >= 3);
 
-  function filtrerDonnees(data) {
+  function filtrerDonnees(data, type) {
     const tableau = transformerEnTableau(data);
 
     // Si le JSON n'est pas un tableau,
@@ -159,12 +193,20 @@ function rechercherDansDonnees(question) {
       );
     });
 
-    return resultats.slice(0, 30);
+    // Limite forte du nombre de resultats
+    // (une ligne de bus complete peut contenir 50+ arrets,
+    // donc on ne garde qu'un petit nombre de correspondances)
+    const maxResultats = type === 'bus' ? 6 : 12;
+    const limites = resultats.slice(0, maxResultats);
+
+    return limites.map(
+      type === 'bus' ? allegerBus : allegerStop
+    );
   }
 
   return {
-    bus: filtrerDonnees(busData),
-    stops: filtrerDonnees(stopsData),
+    bus: filtrerDonnees(busData, 'bus'),
+    stops: filtrerDonnees(stopsData, 'stops'),
     meta: {
       description: metaData?.description || '',
       version: metaData?.version || ''
@@ -272,8 +314,12 @@ app.post('/chat', async (req, res) => {
       })
       .filter((msg) => msg.content.trim());
 
+    // On ne garde que les derniers echanges pour eviter
+    // que l'historique fasse grossir le nombre de tokens
+    const messagesLimites = messages.slice(-8);
+
     const derniereQuestion =
-      [...messages]
+      [...messagesLimites]
         .reverse()
         .find(
           (msg) => msg.role === 'user'
@@ -288,11 +334,11 @@ app.post('/chat', async (req, res) => {
         derniereQuestion
       );
 
-    // Limite la taille du contexte envoyé
-    // pour éviter une requête trop volumineuse.
+    // Limite la taille du contexte envoye
+    // pour rester sous le quota de tokens/minute de Groq.
     const contexteBus = JSON.stringify(
       resultats
-    ).slice(0, 20000);
+    ).slice(0, 6000);
 
     // ===============================
     // PROMPT DE L'IA
@@ -337,9 +383,9 @@ ${contexteBus}
       model: DEFAULT_MODEL,
       messages: [
         systemMessage,
-        ...messages
+        ...messagesLimites
       ],
-      max_tokens: 500,
+      max_tokens: 400,
       temperature: 0.5
     };
 
