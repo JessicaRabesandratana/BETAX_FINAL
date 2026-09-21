@@ -3,23 +3,28 @@ const express = require('express');
 const cors = require('cors');
 
 const fetchFn = globalThis.fetch;
-
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
-const GROQ_KEY = process.env.GROQ_API_KEY;
-// Modèle Groq valide
+// Force la lecture depuis les variables d'environnement système (Render) ou locale (.env)
+const GROQ_KEY = process.env.GROQ_API_KEY || process.env.groq_api_key;
 const DEFAULT_MODEL = 'llama-3.3-70b-versatile';
 
 app.get('/health', (req, res) => {
-  res.json({ ok: true, status: 'healthy', groqConfigured: Boolean(GROQ_KEY) });
+  res.json({
+    ok: true,
+    status: 'healthy',
+    groqConfigured: Boolean(GROQ_KEY && GROQ_KEY.trim().startsWith('gsk_')),
+    envDetected: Object.keys(process.env).filter(k => k.toLowerCase().includes('groq'))
+  });
 });
 
 app.post('/chat', async (req, res) => {
   try {
     if (!GROQ_KEY) {
-      return res.status(500).json({ error: 'GROQ_API_KEY is missing. Set it in backend/.env' });
+      return res.status(500).json({ error: 'GROQ_API_KEY is missing. Set it in Render Dashboard Environment.' });
     }
 
     const body = req.body || {};
@@ -31,14 +36,12 @@ app.post('/chat', async (req, res) => {
       return res.status(400).json({ error: 'messages array required' });
     }
 
-    const messages = incomingMessages.map((msg, index) => {
-      const role = msg.role || 'user';
-      const content = typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content ?? '');
-      return { role, content };
+    const messages = incomingMessages.map((msg) => {
+      return { role: msg.role || 'user', content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content ?? '') };
     });
 
     const payload = {
-      model: model.includes('llama') ? model : DEFAULT_MODEL,
+      model: DEFAULT_MODEL, // Toujours forcer un modèle Groq officiel et valide
       messages,
       max_tokens: maxTokens,
       temperature: Number(body.temperature) || 0.5
@@ -48,7 +51,7 @@ app.post('/chat', async (req, res) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${GROQ_KEY}`
+        'Authorization': `Bearer ${GROQ_KEY.trim()}`
       },
       body: JSON.stringify(payload)
     });
@@ -62,13 +65,10 @@ app.post('/chat', async (req, res) => {
       });
     }
 
-    const reply = data?.choices?.[0]?.message?.content || '';
-
     return res.json({
       ok: true,
-      reply,
-      model,
-      response: data
+      reply: data?.choices?.[0]?.message?.content || '',
+      model
     });
   } catch (err) {
     console.error('Groq proxy error:', err);

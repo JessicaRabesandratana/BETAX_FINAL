@@ -1,118 +1,106 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="fr">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="UTF-8">
   <title>Betax Chat</title>
   <style>
-    body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:0;background:#eef8ff}
-    #chat{max-width:800px;margin:8px auto;padding:12px}
-    .msg{padding:10px;border-radius:8px;margin:6px 0}
-    .user{background:#d1eaff;text-align:right}
-    .bot{background:#fff}
-    #controls{display:flex;gap:8px;margin-top:8px}
-    select,input,button{padding:8px;font-size:14px}
-    #messages{min-height:200px}
+    body { font-family: sans-serif; background: #EEF8FF; margin: 0; padding: 10px; display: flex; flex-direction: column; height: 95vh; }
+    #messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .msg { max-width: 80%; padding: 10px; border-radius: 8px; font-size: 14px; line-height: 1.4; }
+    .user { background: #0076FF; color: white; align-self: flex-end; }
+    .bot { background: white; color: #333; align-self: flex-start; border: 1px solid #D0E8FF; }
+    #input-area { display: flex; gap: 8px; padding: 10px; background: white; border-radius: 8px; }
+    input { flex: 1; padding: 8px; border: 1px solid #CCC; border-radius: 4px; }
+    button { background: #0076FF; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
   </style>
 </head>
 <body>
-  <div id="chat">
-    <h3>Betax Chatbot</h3>
-    <div>
-      Langue: <select id="lang">
-        <option value="fr">Français</option>
-        <option value="en">English</option>
-        <option value="de">Deutsch</option>
-        <option value="es">Español</option>
-      </select>
-    </div>
-    <div id="messages"></div>
-    <div id="controls">
-      <input id="input" placeholder="Pose ta question sur l'app, trajets, bus..." style="flex:1">
-      <button id="send">Envoyer</button>
-    </div>
-    <!-- <small>Note: network requests are routed via the native bridge (`BetaxAndroid`).</small> -->
+  <div id="messages">
+    <div class="msg bot">Bonjour ! Comment puis-je vous aider aujourd'hui ?</div>
+  </div>
+  <div id="input-area">
+    <input type="text" id="chat-input" placeholder="Posez votre question...">
+    <button id="send-btn">Envoyer</button>
   </div>
 
   <script>
-    // Network requests are routed to the native layer via BetaxAndroid.sendChatMessage(payloadJson)
-
     const messagesEl = document.getElementById('messages');
-    const input = document.getElementById('input');
-    const send = document.getElementById('send');
-    const lang = document.getElementById('lang');
+    const input = document.getElementById('chat-input');
+    const send = document.getElementById('send-btn');
 
     let conversation = [
-      { role: 'system', content: `Vous êtes le chatbot Betax, assistant intelligent de l'application Android Betax (package: mg.betax.finalproject, v3.0.0, compileSdk 36, targetSdk 35, minSdk 24).
-
-INSTRUCTIONS PRIORITAIRES:
-1. RÉPONDEZ AUX DEMANDES: écoutez attentivement chaque question et répondez directement et complètement sans détour.
-2. APK FIRST: expliquez les fonctionnalités de l'APK (localisation GPS, trajets bus, actualisations, permissions), son intégration webview (assets://www), son moteur de chat natif.
-3. TRAJETS & TRANSPORT: aidez avec itinéraires optimisés, horaires bus, problèmes de connexion réseau, suggestions de trajets économes.
-4. AUTONOME: fournissez réponses complètes et proactives. Proposez TOUJOURS des actions concrètes ("Vous pourriez aussi...").
-5. SESSION ONLY: aucun stockage persistant BD. Context limité à cette session.
-6. FRANÇAIS: répondez en français. Adaptez si utilisateur bascule langue.
-
-TONALITÉ: clair, bref, actionnable, amical. Jamais de refus — proposez toujours une alternative.` }
+      { role: 'assistant', content: "Bonjour ! Comment puis-je vous aider aujourd'hui ?" }
     ];
 
-    function addMessage(text, cls){
-      const d=document.createElement('div');d.className='msg '+cls;d.textContent=text;messagesEl.appendChild(d);messagesEl.scrollTop=messagesEl.scrollHeight;
-    }
+    function sendMessage() {
+      const text = input.value.trim();
+      if (!text) return;
 
-    async function sendMessage(){
-      const text = input.value.trim(); if(!text) return;
-      addMessage(text,'user'); input.value='';
-      conversation.push({role:'user', content: text});
+      // Append User message
+      const userDiv = document.createElement('div');
+      userDiv.className = 'msg user';
+      userDiv.textContent = text;
+      messagesEl.appendChild(userDiv);
+      conversation.push({ role: 'user', content: text });
+      input.value = '';
+      messagesEl.scrollTop = messagesEl.scrollHeight;
 
-      addMessage('...', 'bot');
+      // Append Placeholder for Bot response
+      const botDiv = document.createElement('div');
+      botDiv.className = 'msg bot';
+      botDiv.textContent = 'En train de réfléchir...';
+      messagesEl.appendChild(botDiv);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
 
       // Prepare payload and delegate network call to native bridge
       const payload = JSON.stringify({
         messages: conversation,
-        model: 'openai/gpt-oss-20b',
+        model: 'llama-3.3-70b-versatile',
         max_tokens: 500,
         temperature: 0.5
       });
-      try{
+
+      try {
         if (window.BetaxAndroid && typeof window.BetaxAndroid.sendChatMessage === 'function') {
-          // native will call window.handleNativeResponse or window.handleNativeError
-          window._pendingBotPlaceholder = messagesEl.querySelector('.bot:last-child');
+          window._pendingBotPlaceholder = botDiv;
           window.BetaxAndroid.sendChatMessage(payload);
         } else {
           throw new Error('Native bridge unavailable');
         }
-      } catch(e){
-        const last = messagesEl.querySelector('.bot:last-child'); if(last) last.textContent = 'Erreur: '+e.message;
+      } catch (e) {
+        botDiv.textContent = 'Erreur: ' + e.message;
       }
     }
 
     // Called by native when the backend responds (JSON string)
     window.handleNativeResponse = function(responseJson) {
-      try{
+      try {
         const data = JSON.parse(responseJson);
         const botMsg = data.reply
           || (data.response && data.response.choices && data.response.choices[0] && data.response.choices[0].message && data.response.choices[0].message.content)
           || JSON.stringify(data.result || data);
+
         const last = window._pendingBotPlaceholder || messagesEl.querySelector('.bot:last-child');
         if (last) last.textContent = botMsg;
-        conversation.push({role:'assistant', content: botMsg});
-      }catch(e){
+        conversation.push({ role: 'assistant', content: botMsg });
+      } catch (e) {
         const last = window._pendingBotPlaceholder || messagesEl.querySelector('.bot:last-child');
         if (last) last.textContent = 'Erreur parsing response';
-      } finally{
+      } finally {
         window._pendingBotPlaceholder = null;
+        messagesEl.scrollTop = messagesEl.scrollHeight;
       }
     }
 
-    window.handleNativeError = function(errMsg){
+    window.handleNativeError = function(errMsg) {
       const last = window._pendingBotPlaceholder || messagesEl.querySelector('.bot:last-child');
-      if (last) last.textContent = 'Erreur natif: '+errMsg;
+      if (last) last.textContent = 'Erreur natif: ' + errMsg;
       window._pendingBotPlaceholder = null;
+      messagesEl.scrollTop = messagesEl.scrollHeight;
     }
 
     send.addEventListener('click', sendMessage);
-    input.addEventListener('keydown', e=>{ if(e.key==='Enter') sendMessage(); });
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
   </script>
 </body>
 </html>
