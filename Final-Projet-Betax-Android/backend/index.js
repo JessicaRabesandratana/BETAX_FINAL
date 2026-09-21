@@ -10,7 +10,7 @@ app.use(express.json());
 
 const GROQ_KEY = process.env.GROQ_API_KEY || process.env.groq_api_key;
 // Utilisation de llama (Google), modèle universellement accessible sur Groq sans restrictions de droits
-const DEFAULT_MODEL = 'llama-3.1-8b-instant';
+const DEFAULT_MODEL = 'openai/gpt-oss-20b';
 
 app.get('/health', (req, res) => {
   res.json({
