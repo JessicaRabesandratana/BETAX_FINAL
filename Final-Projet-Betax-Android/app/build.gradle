@@ -1,0 +1,38 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace = 'mg.betax.finalproject'
+    compileSdk = 36
+
+    buildFeatures {
+        buildConfig = true
+    }
+
+    defaultConfig {
+        applicationId = 'mg.betax.finalproject'
+        minSdk = 24
+        targetSdk = 35
+        versionCode = 4
+        versionName = '3.0.0'
+    }
+
+    buildTypes {
+        debug {
+            // REMPLACEZ L'URL CI-DESSOUS PAR VOTRE URL RENDER
+            buildConfigField "String", "BACKEND_URL", '"https://VOTRE_LIEN_ICI.onrender.com"'
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            // REMPLACEZ L'URL CI-DESSOUS PAR VOTRE URL RENDER
+            buildConfigField "String", "BACKEND_URL", '"https://VOTRE_LIEN_ICI.onrender.com"'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies { implementation 'androidx.webkit:webkit:1.12.1' }

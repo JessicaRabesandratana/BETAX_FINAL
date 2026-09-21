@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b9c83" />
+  <meta name="description" content="Carte Betax limitée à Antananarivo." />
+  <title>Betax - Carte Antananarivo</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+  <script src="js/app.js" defer></script>
+</head>
+<body data-page="map">
+  <header class="app-header map-header">
+    <a class="brand" href="index.html" aria-label="Final Projet Betax, accueil">
+      <img class="logo" src="Image/logo.jpeg" alt="Logo Betax" />
+      <span>
+        <strong>BETAX</strong>
+        <small>Carte Antananarivo</small>
+      </span>
+    </a>
+    <div class="header-actions">
+      <button class="header-action" type="button" data-open-chat>
+        <span aria-hidden="true">✦</span> Assistant
+      </button>
+    </div>
+  </header>
+  <main class="map-page">
+    <aside class="map-sidebar" aria-label="Outils de carte">
+      <div>
+        <p class="eyebrow">Carte locale</p>
+        <h1>Antananarivo seulement.</h1>
+        <p class="map-zone-badge">
+          <span aria-hidden="true">◉</span> Zone Betax verrouillée</p>
+        <span id="mapStopCount" class="map-stop-count">0 arrêt géolocalisé</span>
+      </div>
+      <div class="map-action-grid">
+        <button id="locateButton" class="button button-primary" type="button">⌖ Me localiser</button>
+        <button id="nearbyButton" class="button button-secondary" type="button">Arrêts proches</button>
+        <button id="knownStopsButton" class="button button-secondary" type="button">Arrêts placés</button>
+        <button id="resetMapButton" class="button button-ghost" type="button">Réinitialiser</button>
+      </div>
+      <p id="locationStatus" class="status-text" aria-live="polite">Activez votre position pour localiser les arrêts déjà géocodés autour de vous.</p>
+      <form id="mapStopForm" class="map-search-form" novalidate>
+        <label for="mapStopInput">Rechercher un arrêt</label>
+        <div class="search-row">
+          <input id="mapStopInput" type="search" autocomplete="off" placeholder="Ex. Ambohidratrimo" />
+          <button class="button button-secondary" type="submit">Afficher</button>
+        </div>
+      </form>
+      <form id="mapLineForm" class="map-search-form compact-map-form" novalidate>
+        <label for="mapLineInput">Afficher les arrêts d'une ligne</label>
+        <div class="search-row">
+          <input id="mapLineInput" type="search" autocomplete="off" placeholder="Ex. 127" />
+          <button class="button button-secondary" type="submit">Lister</button>
+        </div>
+      </form>
+      <div id="mapStopResults" class="map-results" aria-live="polite">
+        <p>Les recherches et le déplacement de la carte sont limités à Antananarivo.</p>
+      </div>
+      <p class="map-note">Les marqueurs automatiques proviennent uniquement des coordonnées vérifiées ou mémorisées après une recherche. Les bus en direct ne sont pas encore disponibles, faute de source GPS opérateur.</p>
+    </aside>
+    <div id="map" aria-label="Carte interactive Betax d'Antananarivo"></div>
+  </main>
+  <nav class="bottom-nav" aria-label="Navigation principale">
+    <a href="index.html" class="nav-btn"><span aria-hidden="true">⌂</span><span>Accueil</span></a><a href="trajet.html" class="nav-btn"><span aria-hidden="true">⌁</span><span>Trajet</span></a><a href="bus.html" class="nav-btn"><span aria-hidden="true">🚌</span><span>Lignes</span></a><a href="arret.html" class="nav-btn"><span aria-hidden="true">⌖</span><span>Arrêts</span></a><a href="map.html" class="nav-btn active"><span aria-hidden="true">◉</span><span>Carte</span></a></nav>
+</body></html>

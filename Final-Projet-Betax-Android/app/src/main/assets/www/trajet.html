@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b9c83" />
+  <meta name="description" content="Planificateur de trajet Betax pour Antananarivo." />
+  <title> Betax - Planifier un trajet</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/app.js" defer></script>
+</head>
+<body data-page="journey">
+  <header class="app-header">
+    <a class="brand" href="index.html" aria-label="Final Projet Betax, accueil">
+      <img class="logo" src="Image/logo.jpeg" alt="Logo Betax" />
+      <span>
+        <strong>BETAX</strong>
+        <small>Planifier un trajet</small>
+      </span>
+    </a>
+    <div class="header-actions">
+      <a class="header-action" href="contact.html">
+        <span aria-hidden="true">i</span> Infos</a>
+      <img class="partner-logo" src="Image/ispm.jpeg" alt="Logo ISPM" />
+    </div>
+  </header>
+  <main class="page-shell">
+    <section class="page-heading">
+      <p class="eyebrow">Itinéraires</p>
+      <h1>Planifiez votre trajet</h1>
+      <p>Betax cherche les lignes communes et les correspondances présentes dans les données locales. Le sens, les horaires et la position réelle des bus restent à vérifier sur place</p>
+    </section>
+    <section class="journey-panel" aria-labelledby="journey-form-title">
+      <div class="section-intro">
+        <div>
+        <h2 id="journey-form-title">Départ et destination</h2>
+        <p>Entrez un quartier ou le nom d'un arrêt.</p>
+        </div>
+        <button id="journeyLocate" class="inline-action" type="button">⌖ Utiliser ma position</button>
+      </div>
+      <form id="journeyForm" class="journey-form" novalidate>
+        <label>
+          <span>Je pars de</span>
+          <input id="journeyFrom" name="from" type="search" autocomplete="off" placeholder="Ex.Rasalama" required />
+        </label>
+        <button id="journeySwap" class="swap-button large" type="button" aria-label="Inverser départ et destination">⇄</button>
+        <label>
+          <span>Je vais à</span>
+          <input id="journeyTo" name="to" type="search" autocomplete="off" placeholder="Ex. Mahamasina" required />
+        </label>
+        <button class="button button-primary journey-submit" type="submit">Trouver mon trajet</button>
+      </form>
+      <div id="journeyStatus" class="form-status" aria-live="polite">Exemple : Analakely vers Mahamasina.</div>
+      <div class="journey-presets" aria-label="Suggestions de trajet">
+        <button type="button" data-journey-preset="Analakely|Mahamasina">Analakely → Mahamasina</button>
+        <button type="button" data-journey-preset="67Ha|Anosy">67Ha → Anosy</button>
+        <button type="button" data-journey-preset="Ampefiloha|Behoririka">Ampefiloha → Behoririka</button>
+      </div>
+    </section>
+    <section id="journeyResults" class="journey-results" aria-live="polite">
+      <div class="empty-state large-empty"><span aria-hidden="true">⌁</span>
+        <strong>Votre résultat apparaîtra ici</strong>
+        <p>Betax vous indiquera d'abord les lignes directes, puis les correspondances visibles dans les données lorsqu'elles existent.</p>
+      </div>
+    </section>
+    <section id="journeySaved" class="saved-section" aria-label="Favoris et historiques"></section>
+  </main>
+  <nav class="bottom-nav" aria-label="Navigation principale">
+    <a href="index.html" class="nav-btn"><span aria-hidden="true">⌂</span>
+      <span>Accueil</span>
+    </a>
+    <a href="trajet.html" class="nav-btn active">
+      <span aria-hidden="true">⌁</span>
+      <span>Trajet</span>
+    </a>
+    <a href="bus.html" class="nav-btn">
+      <span aria-hidden="true">🚌</span>
+      <span>Lignes</span>
+    </a>
+    <a href="arret.html" class="nav-btn">
+      <span aria-hidden="true">⌖</span>
+      <span>Arrêts</span>
+    </a>
+    <a href="map.html" class="nav-btn">
+      <span aria-hidden="true">◉</span>
+      <span>Carte</span>
+    </a>
+  </nav>
+</body>
+</html>

@@ -1,0 +1,10 @@
+.gradle/
+.idea/
+local.properties
+build/
+*/build/
+backend/node_modules/
+backend/.env
+*.iml
+.externalNativeBuild/
+.cxx/

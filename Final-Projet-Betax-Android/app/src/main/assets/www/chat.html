@@ -1,0 +1,118 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Betax Chat</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:0;background:#eef8ff}
+    #chat{max-width:800px;margin:8px auto;padding:12px}
+    .msg{padding:10px;border-radius:8px;margin:6px 0}
+    .user{background:#d1eaff;text-align:right}
+    .bot{background:#fff}
+    #controls{display:flex;gap:8px;margin-top:8px}
+    select,input,button{padding:8px;font-size:14px}
+    #messages{min-height:200px}
+  </style>
+</head>
+<body>
+  <div id="chat">
+    <h3>Betax Chatbot</h3>
+    <div>
+      Langue: <select id="lang">
+        <option value="fr">Français</option>
+        <option value="en">English</option>
+        <option value="de">Deutsch</option>
+        <option value="es">Español</option>
+      </select>
+    </div>
+    <div id="messages"></div>
+    <div id="controls">
+      <input id="input" placeholder="Pose ta question sur l'app, trajets, bus..." style="flex:1">
+      <button id="send">Envoyer</button>
+    </div>
+    <!-- <small>Note: network requests are routed via the native bridge (`BetaxAndroid`).</small> -->
+  </div>
+
+  <script>
+    // Network requests are routed to the native layer via BetaxAndroid.sendChatMessage(payloadJson)
+
+    const messagesEl = document.getElementById('messages');
+    const input = document.getElementById('input');
+    const send = document.getElementById('send');
+    const lang = document.getElementById('lang');
+
+    let conversation = [
+      { role: 'system', content: `Vous êtes le chatbot Betax, assistant intelligent de l'application Android Betax (package: mg.betax.finalproject, v3.0.0, compileSdk 36, targetSdk 35, minSdk 24).
+
+INSTRUCTIONS PRIORITAIRES:
+1. RÉPONDEZ AUX DEMANDES: écoutez attentivement chaque question et répondez directement et complètement sans détour.
+2. APK FIRST: expliquez les fonctionnalités de l'APK (localisation GPS, trajets bus, actualisations, permissions), son intégration webview (assets://www), son moteur de chat natif.
+3. TRAJETS & TRANSPORT: aidez avec itinéraires optimisés, horaires bus, problèmes de connexion réseau, suggestions de trajets économes.
+4. AUTONOME: fournissez réponses complètes et proactives. Proposez TOUJOURS des actions concrètes ("Vous pourriez aussi...").
+5. SESSION ONLY: aucun stockage persistant BD. Context limité à cette session.
+6. FRANÇAIS: répondez en français. Adaptez si utilisateur bascule langue.
+
+TONALITÉ: clair, bref, actionnable, amical. Jamais de refus — proposez toujours une alternative.` }
+    ];
+
+    function addMessage(text, cls){
+      const d=document.createElement('div');d.className='msg '+cls;d.textContent=text;messagesEl.appendChild(d);messagesEl.scrollTop=messagesEl.scrollHeight;
+    }
+
+    async function sendMessage(){
+      const text = input.value.trim(); if(!text) return;
+      addMessage(text,'user'); input.value='';
+      conversation.push({role:'user', content: text});
+
+      addMessage('...', 'bot');
+
+      // Prepare payload and delegate network call to native bridge
+      const payload = JSON.stringify({
+        messages: conversation,
+        model: 'openai/gpt-oss-20b',
+        max_tokens: 500,
+        temperature: 0.5
+      });
+      try{
+        if (window.BetaxAndroid && typeof window.BetaxAndroid.sendChatMessage === 'function') {
+          // native will call window.handleNativeResponse or window.handleNativeError
+          window._pendingBotPlaceholder = messagesEl.querySelector('.bot:last-child');
+          window.BetaxAndroid.sendChatMessage(payload);
+        } else {
+          throw new Error('Native bridge unavailable');
+        }
+      } catch(e){
+        const last = messagesEl.querySelector('.bot:last-child'); if(last) last.textContent = 'Erreur: '+e.message;
+      }
+    }
+
+    // Called by native when the backend responds (JSON string)
+    window.handleNativeResponse = function(responseJson) {
+      try{
+        const data = JSON.parse(responseJson);
+        const botMsg = data.reply
+          || (data.response && data.response.choices && data.response.choices[0] && data.response.choices[0].message && data.response.choices[0].message.content)
+          || JSON.stringify(data.result || data);
+        const last = window._pendingBotPlaceholder || messagesEl.querySelector('.bot:last-child');
+        if (last) last.textContent = botMsg;
+        conversation.push({role:'assistant', content: botMsg});
+      }catch(e){
+        const last = window._pendingBotPlaceholder || messagesEl.querySelector('.bot:last-child');
+        if (last) last.textContent = 'Erreur parsing response';
+      } finally{
+        window._pendingBotPlaceholder = null;
+      }
+    }
+
+    window.handleNativeError = function(errMsg){
+      const last = window._pendingBotPlaceholder || messagesEl.querySelector('.bot:last-child');
+      if (last) last.textContent = 'Erreur natif: '+errMsg;
+      window._pendingBotPlaceholder = null;
+    }
+
+    send.addEventListener('click', sendMessage);
+    input.addEventListener('keydown', e=>{ if(e.key==='Enter') sendMessage(); });
+  </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "project": "Final Projet Betax",
+  "coverage": "Antananarivo uniquement",
+  "data_notice": "Les itinéraires sont dérivés du fichier bus.json. Les horaires, tarifs, sens de circulation et positions GPS réelles ne sont pas fournis par ces données.",
+  "live_bus_tracking": false,
+  "offline_support": "Partiel : données locales, favoris et pages mises en cache."
+}

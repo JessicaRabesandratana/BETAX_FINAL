@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b9c83" />
+    <meta name="description" content="Informations, aide et retours pour Final Projet Betax." />
+    <title>Betax - Infos et contact</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="js/app.js" defer></script>
+</head>
+<body data-page="contact">
+<header class="app-header">
+    <a class="brand" href="index.html" aria-label="Final Projet Betax, accueil">
+        <img class="logo" src="Image/logo.jpeg" alt="Logo Betax" />
+        <span>
+            <strong>BETAX</strong>
+            <small>Infos et contact</small>
+        </span>
+    </a>
+    <div class="header-actions">
+        <a class="header-action" href="trajet.html">⌁ Trajet</a>
+        <img class="partner-logo" src="Image/ispm.jpeg" alt="Logo ISPM" />
+    </div>
+</header>
+<main class="page-shell">
+    <section class="page-heading">
+        <p class="eyebrow">Infos utiles</p>
+        <h1>Un usage simple et transparent</h1>
+        <p>Betax ne présente que les informations issues de ses fichiers de données locaux et indique clairement ce qui manque encore.</p>
+    </section>
+    <section class="info-grid">
+        <article class="info-card">
+            <span aria-hidden="true">✓</span>
+            <h2>Ce que Betax peut faire</h2>
+            <p>Rechercher des lignes, arrêts, trajets directs, certaines correspondances et arrêts proches si leurs coordonnées sont disponibles.</p>
+        </article>
+        <article class="info-card">
+            <span aria-hidden="true">!</span>
+            <h2>À vérifier sur place</h2>
+            <p>Le sens du bus, le terminus, les horaires, le tarif et la position en direct des véhicules ne sont pas déduits par l'application.</p>
+        </article>
+        <article class="info-card">
+            <span aria-hidden="true">⌁</span>
+            <h2>Questions comprises</h2>
+            <p>« Ligne 109 », « Quel bus passe par Anosy ? », « De Analakely à Mahamasina » ou « Arrêts près de moi ».</p>
+            <button type="button" class="text-button" data-open-chat>Tester l'assistant</button>
+        </article>
+    </section>
+    <section class="feedback-card">
+        <div class="section-intro">
+            <div>
+                <p class="eyebrow">Améliorer Betax</p>
+                <h2>Signaler une erreur ou une suggestion</h2>
+            </div>
+            <span class="privacy-note">Aucune position GPS n'est envoyée par ce formulaire.</span>
+        </div>
+        <form id="feedbackForm" class="feedback-form" novalidate>
+            <label>
+                <span>Type de retour</span>
+                <select id="feedbackType">
+                    <option value="Suggestion">Suggestion</option>
+                    <option value="Arrêt incorrect">Arrêt incorrect</option>
+                    <option value="Ligne à corriger">Ligne à corriger</option>
+                    <option value="Autre">Autre</option>
+                </select>
+            </label>
+            <label class="feedback-wide">
+                <span>Votre message</span>
+                <textarea id="feedbackText" rows="5" placeholder="Ex. La ligne ... ne passe plus par ..."></textarea>
+            </label>
+            <button type="submit" class="button button-primary">Préparer le signalement</button>
+        </form>
+        <div id="feedbackResult" class="form-status" aria-live="polite"></div>
+    </section>
+</main>
+<nav class="bottom-nav" aria-label="Navigation principale">
+    <a href="index.html" class="nav-btn">
+        <span aria-hidden="true">⌂</span>
+        <span>Accueil</span>
+    </a>
+    <a href="trajet.html" class="nav-btn">
+        <span aria-hidden="true">⌁</span>
+        <span>Trajet</span>
+    </a>
+    <a href="bus.html" class="nav-btn">
+        <span aria-hidden="true">🚌</span>
+        <span>Lignes</span>
+    </a>
+    <a href="arret.html" class="nav-btn">
+        <span aria-hidden="true">⌖</span>
+        <span>Arrêts</span>
+    </a>
+    <a href="map.html" class="nav-btn">
+        <span aria-hidden="true">◉</span>
+        <span>Carte</span>
+    </a>
+</nav>
+</body>
+</html>
