@@ -9,14 +9,15 @@ app.use(cors());
 app.use(express.json());
 
 const GROQ_KEY = process.env.GROQ_API_KEY || process.env.groq_api_key;
-const DEFAULT_MODEL = 'llama-3.3-70b-versatile';
+// Utilisation d'un modèle Llama 3 récent et standard disponible sur tous les comptes Groq
+const DEFAULT_MODEL = 'llama-3.1-8b-instant';
 
 app.get('/health', (req, res) => {
   res.json({
     ok: true,
     status: 'healthy',
     groqConfigured: Boolean(GROQ_KEY && GROQ_KEY.trim().startsWith('gsk_')),
-    envDetected: Object.keys(process.env).filter(k => k.toLowerCase().includes('groq'))
+    modelUsed: DEFAULT_MODEL
   });
 });
 
@@ -44,7 +45,7 @@ app.post('/chat', async (req, res) => {
     });
 
     const payload = {
-      model: DEFAULT_MODEL,
+      model: DEFAULT_MODEL, // On force un modèle de la famille Llama 3 moderne et disponible
       messages: messages,
       max_tokens: 500,
       temperature: 0.5
