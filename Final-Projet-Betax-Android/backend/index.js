@@ -21,6 +21,10 @@ app.get('/health', (req, res) => {
   });
 });
 
+app.get('/', (req, res) => {
+    res.send("Backend de l'application Betax fonctionne!");
+});
+
 app.post('/chat', async (req, res) => {
   try {
     if (!GROQ_KEY) {
@@ -80,5 +84,8 @@ app.post('/chat', async (req, res) => {
   }
 });
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Proxy listening on ${port}`));
+const port = process.env.PORT || 10000;
+app.listen(port,"0.0.0.0", () => {
+    console.log(`Serveur lancé sur le port ${port}`);
+    });
+
