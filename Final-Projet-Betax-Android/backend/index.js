@@ -9,8 +9,8 @@ app.use(cors());
 app.use(express.json());
 
 const GROQ_KEY = process.env.GROQ_API_KEY || process.env.groq_api_key;
-// Modèle de référence universel et stable à 100% sur tous les types de comptes Groq
-const DEFAULT_MODEL = 'llama3-8b-8192';
+// Le modèle actuellement supporté, actif et recommandé en production sur tous les comptes Groq gratuits
+const DEFAULT_MODEL = 'llama-3.3-70b-specdec';
 
 app.get('/health', (req, res) => {
   res.json({
@@ -45,7 +45,7 @@ app.post('/chat', async (req, res) => {
     });
 
     const payload = {
-      model: DEFAULT_MODEL, // Utilisation forcée du modèle stable et gratuit
+      model: DEFAULT_MODEL, // Utilisation forcée du modèle valide actuel
       messages: messages,
       max_tokens: 500,
       temperature: 0.5
