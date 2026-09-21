@@ -165,7 +165,10 @@ function rechercherDansDonnees(question) {
   return {
     bus: filtrerDonnees(busData),
     stops: filtrerDonnees(stopsData),
-    meta: metaData
+    meta: {
+      description: metaData?.description || '',
+      version: metaData?.version || ''
+    }
   };
 }
 
